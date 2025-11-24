@@ -1,0 +1,210 @@
+/* Backyard Ultra Training Plan Generator - Minimal CSS */
+
+/* Layout container */
+.app-container {
+  max-width: 900px;
+  margin: 2rem auto;
+  padding: 0 1rem 4rem;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+h1 {
+  font-size: clamp(1.8rem, 4vw, 2.6rem);
+  margin-bottom: 1rem;
+  line-height: 1.2;
+}
+
+/* Collapsible usage guide */
+.usage-guide {
+  margin-bottom: 1.5rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background: #f9f9f9;
+  padding: 0.5rem 0.75rem;
+}
+.usage-guide > summary {
+  cursor: pointer;
+  font-weight: 600;
+  list-style: none;
+}
+.usage-guide[open] > summary {
+  margin-bottom: 0.5rem;
+}
+
+/* Toggle button for guide */
+.toggle-guide-btn {
+  background: #eee;
+  border: 1px solid #bbb;
+  border-radius: 4px;
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-bottom: 0.5rem;
+  transition: background 0.15s, border-color 0.15s;
+}
+.toggle-guide-btn:focus {
+  outline: 2px solid #4a90e2;
+  outline-offset: 2px;
+}
+
+/* Guide content visibility */
+.guide-content[hidden] {
+  display: none !important;
+}
+.guide-content {
+  padding: 0.5rem 0.25rem;
+  background: #f9f9f9;
+  border-radius: 4px;
+  border: 1px solid #eee;
+  margin-bottom: 0.5rem;
+}
+
+/* Form layout */
+#plan-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: flex-end;
+  max-width: 700px;
+  margin: 0 auto 1.5rem auto;
+}
+.form-params-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: flex-end;
+  max-width: 700px;
+  margin: 0 auto 0.5rem auto;
+}
+.form-row {
+  display: flex;
+  flex-direction: column;
+  min-width: 140px;
+  max-width: 180px;
+  flex: 1 1 140px;
+  margin-bottom: 0;
+  gap: 0.3rem;
+}
+.form-row label {
+  font-size: 0.98rem;
+  margin-bottom: 0.2rem;
+}
+input[type="date"],
+select,
+input[type="number"] {
+  max-width: 100%;
+  min-width: 0;
+  font-size: 0.98rem;
+  padding: 0.35rem 0.5rem;
+}
+
+/* Day selector grid */
+.day-selector {
+  display: block;
+  width: 100%;
+  margin: 1rem 0 0.5rem 0;
+  min-width: 0;
+  max-width: 700px;
+  align-self: stretch;
+}
+.day-selector legend {
+  font-size: 0.98rem;
+  margin-bottom: 0.2rem;
+}
+.days-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.2rem;
+  max-width: 220px;
+}
+.day-option {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.day-option input { position: absolute; opacity: 0; inset: 0; cursor: pointer; }
+.day-option label {
+  display: block;
+  width: 100%;
+  text-align: center;
+  padding: 0.6rem 0.3rem;
+  background: #eee;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  user-select: none;
+  transition: background 0.15s, border-color 0.15s;
+}
+.day-option input:focus + label { outline: 2px solid #4a90e2; outline-offset: 2px; }
+.day-option input:checked + label { background: #4a90e2; color: #fff; border-color: #357ab8; }
+
+/* Button styles */
+.actions {
+  margin: 0;
+  align-self: flex-end;
+}
+#generateBtn {
+  background: #357ab8;
+  color: #fff;
+  border: none;
+  padding: 0.5rem 1rem;
+  font-size: 0.98rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.2s;
+}
+#generateBtn:hover { background: #1f5f90; }
+#generateBtn:active { background: #174b72; }
+#generateBtn:focus { outline: 3px solid #b3d4fc; outline-offset: 2px; }
+
+/* Messages and output */
+.messages {
+  min-height: 1.5rem;
+  margin-bottom: 1rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 4px;
+  font-size: 0.95rem;
+}
+.messages.error { background: #ffecec; color: #a40000; border: 1px solid #ffb3b3; }
+.messages.success { background: #e9f9ec; color: #145c25; border: 1px solid #b7e2c2; }
+.messages ul { margin: 0; padding-left: 1.2rem; }
+
+.plan-output { margin-top: 1rem; }
+.plan-summary p { margin: 0.25rem 0; }
+.plan-table { width: 100%; border-collapse: collapse; margin-top: 0.75rem; }
+.plan-table th, .plan-table td { border: 1px solid #ccc; padding: 0.4rem 0.5rem; text-align: left; }
+.plan-table th { background: #f0f0f0; }
+.placeholder-note { font-size: 0.85rem; color: #555; margin-top: 0.5rem; }
+
+/* Responsive design for mobile */
+@media (max-width: 600px) {
+  .days-grid { grid-template-columns: repeat(4, 1fr); }
+  .app-container { padding: 0 0.75rem 3rem; }
+}
+@media (max-width: 800px) {
+  #plan-form {
+    flex-direction: column;
+    align-items: stretch;
+    max-width: 100%;
+    gap: 0.7rem;
+  }
+  .form-params-row {
+    flex-direction: column;
+    align-items: stretch;
+    max-width: 100%;
+    gap: 0.7rem;
+  }
+  .form-row, .day-selector, .actions {
+    max-width: 100%;
+    min-width: 0;
+    flex: 1 1 100%;
+  }
+  .days-grid {
+    grid-template-columns: repeat(4, 1fr);
+    max-width: 100%;
+  }
+}

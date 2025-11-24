@@ -1,0 +1,130 @@
+<!doctype html>
+<html class="no-js" lang="en">
+
+<head>
+  <!-- Required meta tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Title and description -->
+  <title>Backyard Ultra Training Plan Generator</title>
+  <meta name="description" content="Generate a Backyard Ultra training plan based on high-level parameters.">
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:title" content="Backyard Ultra Training Plan Generator">
+  <meta property="og:type" content="website">
+<!--  <meta property="og:url" content="">-->
+<!--  <meta property="og:image" content="">-->
+<!--  <meta property="og:image:alt" content="">-->
+
+  <!-- Favicon and theme color -->
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <meta name="theme-color" content="#fafafa">
+
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+  <!-- Accessible main landmark -->
+  <main class="app-container" aria-labelledby="app-title">
+    <h1 id="app-title">Backyard Ultra Training Plan Generator</h1>
+
+    <!-- Custom collapsible instructions section -->
+    <section class="usage-guide" id="usageGuideSection">
+      <button type="button" id="toggleGuideBtn" aria-expanded="false" aria-controls="guideContent" class="toggle-guide-btn">How To Use This Website</button>
+      <div id="guideContent" class="guide-content" hidden>
+        <p>
+          This is just a static guide meant to be used as a plan. Want something more specific? Contact me here.
+          <!-- TODO: Replace wording and add actual contact link later. -->
+        </p>
+      </div>
+    </section>
+
+    <!-- Form: we avoid actual submission/page refresh and handle everything in JS -->
+    <form id="plan-form" novalidate>
+      <div class="form-params-row">
+        <!-- Target race date -->
+        <div class="form-row">
+          <label for="targetDate">When is your Backyard Ultra?</label>
+          <input type="date" id="targetDate" name="targetDate" required>
+        </div>
+
+        <!-- Plan length select -->
+        <div class="form-row">
+          <label for="planLength">How long do you want your training plan?</label>
+          <select id="planLength" name="planLength" required>
+            <option value="" disabled selected>Select length</option>
+            <option value="8">8 weeks</option>
+            <option value="12">12 weeks</option>
+            <option value="16">16 weeks</option>
+          </select>
+        </div>
+
+        <!-- Average weekly training hours -->
+        <div class="form-row">
+          <label for="avgHours">Desired average weekly training hours</label>
+          <input type="number" id="avgHours" name="avgHours" min="0" max="16" step="0.5" placeholder="e.g. 6" required>
+        </div>
+
+        <!-- Peak weekly training hours -->
+        <div class="form-row">
+          <label for="peakHours">Desired peak weekly training hours</label>
+          <input type="number" id="peakHours" name="peakHours" min="0" max="24" step="0.5" placeholder="e.g. 12" required>
+        </div>
+      </div>
+
+      <!-- Day selection section on its own row -->
+      <fieldset class="day-selector">
+        <legend>Click all weekdays when you can train (minimum 3)</legend>
+        <div class="days-grid">
+          <div class="day-option">
+            <input type="checkbox" id="day-mon" value="Mon" name="days">
+            <label for="day-mon">Mon</label>
+          </div>
+          <div class="day-option">
+            <input type="checkbox" id="day-tue" value="Tue" name="days">
+            <label for="day-tue">Tue</label>
+          </div>
+          <div class="day-option">
+            <input type="checkbox" id="day-wed" value="Wed" name="days">
+            <label for="day-wed">Wed</label>
+          </div>
+          <div class="day-option">
+            <input type="checkbox" id="day-thu" value="Thu" name="days">
+            <label for="day-thu">Thu</label>
+          </div>
+          <div class="day-option">
+            <input type="checkbox" id="day-fri" value="Fri" name="days">
+            <label for="day-fri">Fri</label>
+          </div>
+          <div class="day-option">
+            <input type="checkbox" id="day-sat" value="Sat" name="days">
+            <label for="day-sat">Sat</label>
+          </div>
+          <div class="day-option">
+            <input type="checkbox" id="day-sun" value="Sun" name="days">
+            <label for="day-sun">Sun</label>
+          </div>
+        </div>
+      </fieldset>
+
+      <!-- Generate button -->
+      <div class="actions">
+        <button type="button" id="generateBtn">Generate Plan</button>
+      </div>
+    </form>
+
+    <!-- Area where validation messages or generated plan preview will appear -->
+    <section id="messages" aria-live="polite" class="messages" tabindex="-1"></section>
+    <section id="planOutput" class="plan-output" aria-labelledby="plan-output-heading">
+      <h2 id="plan-output-heading" class="visually-hidden">Generated Training Plan</h2>
+      <!-- Generated content will be injected here -->
+    </section>
+  </main>
+
+  <!-- Scripts -->
+  <script src="app.js"></script>
+</body>
+
+</html>
