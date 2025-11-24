@@ -1,11 +1,9 @@
 // Backyard Ultra Training Plan Generator logic
-// This file contains only front-end JavaScript: no external dependencies.
 
 // Utility: Select helper (shorter document.querySelector)
 const $ = (sel) => document.querySelector(sel);
 
 // Cache DOM elements we'll use multiple times
-const form = $('#plan-form');
 const generateBtn = $('#generateBtn');
 const messagesEl = $('#messages');
 const outputEl = $('#planOutput');
@@ -20,7 +18,8 @@ generateBtn.addEventListener('click', handleGenerate);
 function handleGenerate() {
   clearMessages();
   const data = collectFormData();
-  const errors = validate(data);
+  console.log(data);
+  const errors = validateDataInput(data);
   if (errors.length) {
     showErrors(errors);
     return;
@@ -38,10 +37,9 @@ function collectFormData() {
   const targetDate = $('#targetDate').value ? new Date($('#targetDate').value) : null;
   const planLengthWeeks = parseInt($('#planLength').value, 10);
   const avgHours = parseFloat($('#avgHours').value);
-  const peakHours = parseFloat($('#peakHours').value);
   const dayCheckboxes = Array.from(document.querySelectorAll('input[name="days"]'));
   const selectedDays = dayCheckboxes.filter(cb => cb.checked).map(cb => cb.value);
-  return { targetDate, planLengthWeeks, avgHours, peakHours, selectedDays };
+  return { targetDate, planLengthWeeks, avgHours, selectedDays };
 }
 
 /**
@@ -49,20 +47,12 @@ function collectFormData() {
  * @param {Object} data
  * @returns {string[]} errors
  */
-function validate(data) {
+function validateDataInput(data) {
   const errors = [];
-  const now = new Date();
 
   // Target date must exist and be in the future
   if (!data.targetDate) {
     errors.push('Please select a target backyard ultra date.');
-  } else {
-    // Compare only date portion (ignore time). Set hours to 0 for both for robust comparison
-    const todayMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const targetMidnight = new Date(data.targetDate.getFullYear(), data.targetDate.getMonth(), data.targetDate.getDate());
-    if (targetMidnight <= todayMidnight) {
-      errors.push('Target date must be in the future.');
-    }
   }
 
   // Plan length must be one of expected values
@@ -70,27 +60,29 @@ function validate(data) {
     errors.push('Please select a training plan length (8, 12, or 16 weeks).');
   }
 
-  // Hours numeric and logical
+  // Average hours numeric and logical
   if (isNaN(data.avgHours) || data.avgHours <= 0) {
     errors.push('Average weekly training hours must be a positive number.');
-  }
-  if (isNaN(data.peakHours) || data.peakHours <= 0) {
-    errors.push('Peak weekly training hours must be a positive number.');
-  }
-  if (!isNaN(data.avgHours) && !isNaN(data.peakHours) && data.peakHours < data.avgHours) {
-    errors.push('Peak weekly hours should be greater than or equal to average weekly hours.');
+  } else if (data.avgHours < 6) {
+    errors.push('Average weekly training is lower than the minimum of 6 hrs.');
   }
 
   // At least one day selected
   if (!data.selectedDays.length) {
     errors.push('Select at least one training day.');
+  } else if (data.selectedDays.length < 3) {
+    errors.push('Number of selected days is lower than the minimum of 3.');
+  } else if (!data.selectedDays.includes("Thu") && !data.selectedDays.includes("Sat") && !data.selectedDays.includes("Sun")) {
+      errors.push('Please include one between Tuesday, Saturday or Sunday as a training day to accommodate long runs.');
   }
 
-  // Rough feasibility: average vs number of days (optional heuristic). Example: if avgHours/selectedDays < 0.25 maybe warn.
+  // Rough feasibility: average vs number of days.
   if (data.selectedDays.length && !isNaN(data.avgHours)) {
     const perDayAvg = data.avgHours / data.selectedDays.length;
-    if (perDayAvg < 0.25) {
-      errors.push('Average hours per selected training day is very low (<0.25h). Consider adjusting days or hours.');
+    if (perDayAvg < 1.5) {
+      errors.push('The desired average running time per running day should be at least 1.5. Consider adjusting days or hours.');
+    } else if (perDayAvg > 3.5) {
+      errors.push('The desired average running time per running day should be at less than 3.5. Consider adjusting days or hours.');
     }
   }
 
@@ -107,33 +99,17 @@ function buildPlaceholderPlan(data) {
   const startDate = new Date(data.targetDate.getTime());
   startDate.setDate(startDate.getDate() - data.planLengthWeeks * 7);
 
-  // Simple weekly progression placeholder: ramp from avgHours to peakHours mid-plan then taper.
+  // Simple weekly progression: all weeks use avgHours
   const weeks = [];
-  const totalWeeks = data.planLengthWeeks;
-  const peakWeekIndex = Math.floor(totalWeeks * 0.65); // When peak occurs
-  for (let w = 0; w < totalWeeks; w++) {
-    let plannedHours;
-    if (w < peakWeekIndex) {
-      // Linear ramp
-      plannedHours = interpolate(w, 0, peakWeekIndex, data.avgHours, data.peakHours);
-    } else if (w === peakWeekIndex) {
-      plannedHours = data.peakHours;
-    } else {
-      // Taper down 20% each week after peak until not below avgHours
-      const taperFactor = Math.pow(0.8, w - peakWeekIndex);
-      plannedHours = Math.max(data.avgHours, data.peakHours * taperFactor);
-    }
-    weeks.push({ weekNumber: w + 1, plannedHours: round1(plannedHours) });
+  for (let w = 0; w < data.planLengthWeeks; w++) {
+    weeks.push({ weekNumber: w + 1, plannedHours: round1(data.avgHours) });
   }
 
   return { startDate, weeks };
 }
 
-/** Utility linear interpolation */
-function interpolate(x, x0, x1, y0, y1) {
-  if (x1 === x0) return y0;
-  return y0 + (y1 - y0) * ((x - x0) / (x1 - x0));
-}
+
+// Util functions
 
 /** Round to 0.1 */
 function round1(v) { return Math.round(v * 10) / 10; }
@@ -149,13 +125,13 @@ function renderPlan(plan, data) {
       <p><strong>Target race:</strong> ${targetStr}</p>
       <p><strong>Plan length:</strong> ${data.planLengthWeeks} weeks (starts ${startStr})</p>
       <p><strong>Training days selected:</strong> ${data.selectedDays.join(', ')}</p>
-      <p><strong>Avg / Peak weekly hours:</strong> ${data.avgHours} / ${data.peakHours}</p>
+      <p><strong>Avg weekly hours:</strong> ${data.avgHours}</p>
     </div>
     <table class="plan-table" aria-describedby="plan-output-heading">
       <thead><tr><th scope="col">Week</th><th scope="col">Planned Hours</th></tr></thead>
       <tbody>${weeksHtml}</tbody>
     </table>
-    <p class="placeholder-note">Placeholder distribution. Will refine algorithm later.</p>
+    <p class="placeholder-note">All weeks use the same average weekly hours. Will refine algorithm later.</p>
   `;
 }
 
@@ -187,7 +163,7 @@ function formatDate(d) {
   const y = d.getFullYear();
   const m = String(d.getMonth() + 1).padStart(2, '0');
   const da = String(d.getDate()).padStart(2, '0');
-  return `${y}-${m}-${da}`;
+  return `${da}-${m}-${y}`;
 }
 
 // Optional: Close details when ESC pressed while focused inside content
